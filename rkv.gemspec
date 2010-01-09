@@ -19,6 +19,8 @@ Gem::Specification.new do |s|
     ".gitignore",
      "README.rdoc",
      "Rakefile",
+     "VERSION",
+     "rkv.gemspec",
      "spec/spec.opts",
      "spec/spec_helper.rb"
   ]
