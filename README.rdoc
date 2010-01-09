@@ -1,0 +1,50 @@
+rkv - Ruby Key Value - an adapter on top of various key-value stores
+
+== Install
+
+Installing the gem:
+
+  gem install rkv
+
+
+== Usage
+
+  require 'rubygems'
+  require 'rkv'
+  
+  client = Rkv::Store.new(:cassandra, { :servers =>  ['127.0.0.1:9160'], :keyspace => "Blog" })
+  store = client[:Users]
+  
+  store["5"] = { :name => "Dev Random", :role => "admin" }
+  puts store["3"].inspect
+  
+  store.batch do
+    store[id1] = { :name => "John Doe" }
+    store[id2] = { :name => "Jane Doe" }
+  end
+
+  store = client[:UserRelationships]
+  store[id1, "posts"] = post_id1
+
+== Notes
+
+Keystores have different features.  Operations are mapped to the best of the keystore ability, but some operations may be less efficient or impossible in certain keystores.
+
+== Documentation
+
+RDoc: http://rdoc.info/projects/devrandom/rkv
+
+== Supported KV stores
+
+* Cassandra
+
+== Planned KV stores
+
+* Keyspace
+* Voldemort
+* Redis
+
+== Roadmap
+
+* Create a keystore feature support matrix
+
