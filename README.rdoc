@@ -12,19 +12,19 @@ Installing the gem:
   require 'rubygems'
   require 'rkv'
   
-  client = Rkv::Store.new(:cassandra, { :servers =>  ['127.0.0.1:9160'], :keyspace => "Blog" })
-  store = client[:Users]
+  store = Rkv::Store.open(:cassandra, { :servers =>  ['127.0.0.1:9160'], :keyspace => "Blog" })
+  users = store["Users"]
   
-  store["5"] = { :name => "Dev Random", :role => "admin" }
-  puts store["3"].inspect
+  users["5"] = { :name => "Dev Random", :role => "admin" }
+  puts users["3"].inspect
   
-  store.batch do
-    store[id1] = { :name => "John Doe" }
-    store[id2] = { :name => "Jane Doe" }
+  users.batch do
+    users[id1] = { :name => "John Doe" }
+    users[id2] = { :name => "Jane Doe" }
   end
 
-  store = client[:UserRelationships]
-  store[id1, "posts"] = post_id1
+  user_rels = client[:UserRelationships]
+  user_rels[id1, "posts"] = post_id1
 
 == Notes
 
