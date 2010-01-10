@@ -9,6 +9,8 @@ module Rkv
 
       attr_accessor :opts
 
+      attr_accessor :recurse
+
       def self.open(opts)
         self.new(opts)
       end
@@ -18,25 +20,36 @@ module Rkv
         @consistency = opts[:consistency] || :safe
         @backend = Cassandra.new(opts[:keyspace], opts[:servers])
         @columns = {}
+        @recurse = opts[:recurse] || :default
         @opts = {
           :consistency => (consistency == :safe) ? Cassandra::Consistency::QUORUM : Cassandra::Consistency::ONE
         }
       end
 
       def [](key)
+        _must_recurse(key)
         return @columns[key] if @columns[key]
         @columns[key] = ColumnAdapter.new(self, key)
         return @columns[key]
       end
 
       def []=(key, value)
-        raise ArgumentError.new("this store does not allow storing at top level - subscript me twice")
+        _must_recurse(key)
+        raise ArgumentError.new("this store does not allow storing at top level - subscript me")
       end
 
-      def delete_this(key)
-        # this does nothing, because nothing is stored at this level
+      private
+
+      def _must_recurse(key)
+        raise ArgumentError.new("at this depth - key must end with slash, or :recurse option must be specified") unless _recurse?(key)
       end
 
+      def _recurse?(key)
+        return false if @recurse.nil?
+        return (@recurse == :default || @recurse == "*" || @recurse[key] || key.end_with?("/"))
+      end
+
+      public
 
       def backend
         @backend
@@ -44,27 +57,47 @@ module Rkv
 
       class ColumnAdapter
         attr_reader :store
+
         attr_reader :id
+
+        attr_reader :recurse
 
         def initialize(store, column_key)
           @store = store
           @id = column_key.to_sym
+          @recurse = @store.recurse
+          if Hash === @recurse
+            @recurse = @recurse[column_key]
+          elsif "*" == @recurse
+            @recurse = {}
+          end
         end
 
         def [](key)
+          _must_recurse(key)
           RowAdapter.new(self, key, nil)
         end
 
-        def delete_this(key)
-          # this does nothing, because nothing is stored at this level
-        end
-
         def delete(key)
-          @store.backend.remove(@id, key, @store.opts)
+          if _recurse?(key)
+            @store.backend.remove(@id, key, @store.opts)
+          end
         end
 
         def []=(key, value)
-          raise ArgumentError.new("this store does not allow storing at second level - subscript me once")
+          _must_recurse(key)
+          # TODO allow storing of hashes here
+        end
+
+        private
+
+        def _must_recurse(key)
+          raise ArgumentError.new("at this depth - key must end with slash, or :recurse option must be specified") unless _recurse?(key)
+        end
+
+        def _recurse?(key)
+          return false if @recurse.nil?
+          return (@recurse == :default || @recurse == "*" || @recurse[key] || key.end_with?("/"))
         end
       end
 
@@ -75,32 +108,43 @@ module Rkv
           @store = column.store
           @prefix = prefix
           @id = id
+
+          @recurse = @column.recurse
+          if Hash === @recurse
+            @recurse = @recurse[id]
+          elsif "*" == @recurse
+            @recurse = {}
+          end
         end
 
         def [](key)
-          RowAdapter.new(@column, @id, (@prefix || "") + key + "/")
+          if _recurse?(key)
+            RowAdapter.new(@column, @id, (@prefix || "") + key)
+          else
+            _get[key]
+          end
         end
 
         def []=(key, val)
           key = @prefix + key if @prefix
+          # TODO recurse
           @store.backend.insert(@column.id, @id, { key => val } , @store.opts)
         end
 
-        def delete_this(key)
-          key = @prefix + key if @prefix
-          @store.backend.remove(@column.id, @id, key, @store.opts)
-        end
-
         def delete(key)
-          key = @prefix + key if @prefix
-          key_prefix = key + "/"
-          ohash = @store.backend.get(@column.id, @id, @store.opts)
-          ohash.each_key do |okey|
-            next unless okey == key || okey.start_with?(key_prefix)
-            @store.backend.remove(@column.id, @id, okey, @store.opts)
+          if _recurse?(key)
+            key = @prefix + key if @prefix
+            key = key + "/" unless key.end_with?("/")
+            ohash = @store.backend.get(@column.id, @id, @store.opts)
+            ohash.each_key do |okey|
+              next unless okey == key || okey.start_with?(key)
+              @store.backend.remove(@column.id, @id, okey, @store.opts)
+            end
+          else
+            key = @prefix + key if @prefix
+            @store.backend.remove(@column.id, @id, key, @store.opts)
           end
         end
-
 
         def method_missing(meth, *args, &block)
           _get.send(meth, *args, &block)
@@ -115,8 +159,13 @@ module Rkv
         end
 
         private
+        def _recurse?(key)
+          return false if @recurse.nil?
+          return (@recurse == :default || @recurse == "*" || @recurse[key] || key.end_with?("/"))
+        end
 
         def _get
+          # TODO cache
           ohash = @store.backend.get(@column.id, @id, @store.opts)
           res = {}
           ohash.each_pair do |okey, value|
