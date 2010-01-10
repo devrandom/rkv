@@ -15,16 +15,19 @@ Installing the gem:
   store = Rkv::Store.open(:cassandra, { :servers =>  ['127.0.0.1:9160'], :keyspace => "Blog" })
   users = store["Users"]
   
-  users["5"] = { :name => "Dev Random", :role => "admin" }
+  user = users["5"]
+  user["name"] = "Dev Random"
+  user["role"] = "admin"
+
   puts users["3"].inspect
   
   users.batch do
-    users[id1] = { :name => "John Doe" }
-    users[id2] = { :name => "Jane Doe" }
+    users[id1]["name"] = "John Doe"
+    users[id2]["name"] = "Jane Doe"
   end
 
   user_rels = client[:UserRelationships]
-  user_rels[id1, "posts"] = post_id1
+  user_rels[id1]["posts"][Cassandra::UUID.new] = post_id1
 
 == Notes
 
@@ -37,6 +40,7 @@ RDoc: http://rdoc.info/projects/devrandom/rkv
 == Supported KV stores
 
 * Cassandra
+* Memory
 
 == Planned KV stores
 

@@ -3,7 +3,7 @@ require 'cassandra'
 
 module Rkv
   class Store
-    class CassandraAdapter
+    class CassandraAdapter < BaseAdapter
 
       attr_accessor :consistency
 
@@ -55,7 +55,7 @@ module Rkv
         @backend
       end
 
-      class ColumnAdapter
+      class ColumnAdapter < BaseAdapter
         attr_reader :store
 
         attr_reader :id
@@ -102,7 +102,7 @@ module Rkv
       end
 
 
-      class RowAdapter
+      class RowAdapter < BaseAdapter
         def initialize(column, id, prefix)
           @column = column
           @store = column.store

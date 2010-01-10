@@ -2,7 +2,7 @@ require 'rubygems'
 
 module Rkv
   class Store
-    class MemoryAdapter
+    class MemoryAdapter < BaseAdapter
       attr_accessor :recurse
 
       def self.open(opts)

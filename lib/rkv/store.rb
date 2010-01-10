@@ -1,4 +1,11 @@
 module Rkv
+  class BaseAdapter
+    def batch
+      # default batch just passes control to block
+      yield
+    end
+  end
+
   class Store
     @@backends = {}
     def self.open(backend_name, opts)
