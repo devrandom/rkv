@@ -12,7 +12,10 @@ Installing the gem:
   require 'rubygems'
   require 'rkv'
   
-  store = Rkv.open(:cassandra, { :servers =>  ['127.0.0.1:9160'], :keyspace => "Blog" })
+  store = Rkv.open(:cassandra, { :servers => ['127.0.0.1:9160'], :keyspace => "Blog" })
+  # store = Rkv.open(:memory, :recurse => {"Users" => "*"})
+  # store = Rkv.open(:tokyocabinet, :file => "test.tcb", :recurse => {"Users" => "*"})
+
   users = store["Users"]
   
   user = users["5"]
@@ -37,16 +40,24 @@ Keystores have different features.  Operations are mapped to the best of the key
 
 RDoc: http://rdoc.info/projects/devrandom/rkv
 
+See spec/integration/stores_spec.rb for an example program that runs identically on all stores.
+
+Git:
+* http://gitorious.org/cluster-storage/rkv
+* http://github.com/devrandom/rkv
+
 == Supported KV stores
 
 * Cassandra
 * Memory
+* Tokyo Cabinet
 
 == Planned KV stores
 
 * Keyspace
 * Voldemort
 * Redis
+* PStore
 
 == Roadmap
 

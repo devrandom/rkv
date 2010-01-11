@@ -28,20 +28,30 @@ def test_store(store)
 end
 
 def open_store(store_name)
+  store = nil
   case store_name
   when :memory then
     store = Rkv.open(:memory, :recurse => {"Users" => "*"})
   when :cassandra then
     store = Rkv.open(:cassandra, :servers => "127.0.0.1:9160", :keyspace => 'Twitter', :recurse => {"Users" => "*"})
+  when :tokyocabinet then
+    File.unlink "test.tcb"
+    store = Rkv.open(:tokyocabinet, :file => "test.tcb", :recurse => {"Users" => "*"})
   else
     raise "Unknown store #{store_name}"
   end
+  store
 end
 
 describe Rkv do
-  [:memory, :cassandra, :pstore].each do |store_name|
+  [:memory, :cassandra, :tokyocabinet].each do |store_name|
     it "should work with #{store_name}" do
-      store = open_store(store_name) rescue nil
+      store = nil
+      begin
+        store = open_store(store_name)
+      rescue Exception => e
+        puts "#{e.message}\n#{e.backtrace}"
+      end
       if store
         test_store(store)
       else

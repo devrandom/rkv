@@ -5,6 +5,10 @@ module Rkv
         # default batch just passes control to block
         yield
       end
+
+      def close
+      end
+
       def ==(other)
         my_keys = keys.sort
         o_keys = keys.sort
