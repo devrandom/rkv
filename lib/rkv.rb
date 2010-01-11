@@ -1,1 +1,1 @@
-require 'rkv/store'
+require 'rkv/rkv'

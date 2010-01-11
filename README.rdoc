@@ -12,7 +12,7 @@ Installing the gem:
   require 'rubygems'
   require 'rkv'
   
-  store = Rkv::Store.open(:cassandra, { :servers =>  ['127.0.0.1:9160'], :keyspace => "Blog" })
+  store = Rkv.open(:cassandra, { :servers =>  ['127.0.0.1:9160'], :keyspace => "Blog" })
   users = store["Users"]
   
   user = users["5"]

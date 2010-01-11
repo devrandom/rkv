@@ -2,7 +2,7 @@ require 'rubygems'
 require 'cassandra'
 
 module Rkv
-  class Store
+  module Store
     class CassandraAdapter < BaseAdapter
 
       attr_accessor :consistency

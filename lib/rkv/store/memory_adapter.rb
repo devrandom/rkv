@@ -1,7 +1,7 @@
 require 'rubygems'
 
 module Rkv
-  class Store
+  module Store
     class MemoryAdapter < BaseAdapter
       attr_accessor :recurse
 
