@@ -25,6 +25,7 @@ end
 Spec::Rake::SpecTask.new(:rcov) do |spec|
   spec.libs << 'lib' << 'spec'
   spec.pattern = 'spec/**/*_spec.rb'
+  spec.rcov_opts = ['-x.gem/gems,spec']
   spec.rcov = true
 end
 

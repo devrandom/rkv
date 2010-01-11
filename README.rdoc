@@ -1,11 +1,18 @@
-rkv - Ruby Key Value - an adapter on top of various key-value stores
+rkv - Ruby Key Value - an adapter on top of various key-value and column stores
+
+== Philosophy
+
+The API is a nested (multidimensional) Hash.  This allows effective mapping to both column stores and flat KV stores.
+
+For example, if the Cassandra adapter is used, the first dimension is the column family, the second is the row within the CF and the third is the column within the row.
+
+For flat KV stores, a key hierarchy is used for efficient mapping.
 
 == Install
 
 Installing the gem:
 
   gem install rkv
-
 
 == Usage
 
@@ -50,16 +57,19 @@ Git:
 
 * Cassandra
 * Memory
-* Tokyo Cabinet
+* TokyoCabinet
 
 == Planned KV stores
 
-* Keyspace
 * Voldemort
 * Redis
-* PStore
+* Keyspace
+* SQL
 
 == Roadmap
 
-* Create a keystore feature support matrix
+* Store support
+* Performance testing
+* Keystore feature support matrix
+* Object mapper?
 
