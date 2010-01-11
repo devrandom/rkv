@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{rkv}
-  s.version = "0.0.1"
+  s.version = "0.2.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Miron Cuperman"]
-  s.date = %q{2010-01-09}
+  s.date = %q{2010-01-11}
   s.description = %q{Ruby Key Value - an adapter on top of various key-value stores, supporting Cassandra and others}
   s.email = %q{c1.github@niftybox.net}
   s.extra_rdoc_files = [
@@ -20,7 +20,14 @@ Gem::Specification.new do |s|
      "README.rdoc",
      "Rakefile",
      "VERSION",
+     "lib/rkv.rb",
+     "lib/rkv/rkv.rb",
+     "lib/rkv/store/cassandra_adapter.rb",
+     "lib/rkv/store/memory_adapter.rb",
+     "lib/rkv/store/tokyocabinet_adapter.rb",
      "rkv.gemspec",
+     "spec/integration/stores_spec.rb",
+     "spec/lib/rkv_store_spec.rb",
      "spec/spec.opts",
      "spec/spec_helper.rb"
   ]
@@ -30,7 +37,9 @@ Gem::Specification.new do |s|
   s.rubygems_version = %q{1.3.5}
   s.summary = %q{Ruby Key Value - an adapter on top of various key-value stores}
   s.test_files = [
-    "spec/spec_helper.rb"
+    "spec/lib/rkv_store_spec.rb",
+     "spec/spec_helper.rb",
+     "spec/integration/stores_spec.rb"
   ]
 
   if s.respond_to? :specification_version then
